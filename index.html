@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ёлка желаний 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Rubik+Wet+Paint&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="image/favicon.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Навигационная панель -->
+    <nav class="navbar">
+        <div>
+            <img src="image/tenex.png" alt="Логотип" class="navbar-logo" style="margin-right: 10px;">
+            <img src="image/tenex.svg" alt="Логотип" class="navbar-logo">
+        </div>
+        <div class="navbar-title pacifico-regular">Ёлка желаний 2025</div>
+        <img src="image/UG.png" alt="Логотип" class="navbar-logo">
+    </nav>
+    
+    <!-- Обертка -->
+    <div class="main-wrapper">
+        
+        <!-- Левая часть: 3D  -->
+        <div class="left-panel">
+            <div id="tree-container"></div>
+            
+            <!-- Добавленный таймер обратного отсчета -->
+            <div id="countdown-wrapper" class="countdown-timer">
+                <span class="countdown-label">ДО 16.12 ОСТАЛОСЬ:</span>
+                <span id="countdown">00д 00ч 00м</span>
+            </div>
+
+            <div class="overlay-controls">
+                <!-- Обычный шрифт, не italic -->
+                <p class="tree-info">Перетащите для вращения елки • Наведите на шарик для информации</p>
+                <div class="controls">
+                    <button id="rotate-btn" title="Авто вращение">
+                        <!-- ваша иконка (оставлена как есть) -->
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M312-320h64l32-92h146l32 92h62L512-680h-64L312-320Zm114-144 52-150h4l52 150H426Zm54 384q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480h80q0 66 25 124.5t68.5 102q43.5 43.5 102 69T480-159q134 0 227-93t93-227q0-134-93-227t-227-93q-89 0-161.5 43.5T204-640h116v80H80v-240h80v80q55-73 138-116.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+                    </button>
+
+                    <!-- Zoom in -->
+                    <button id="zoom-in" title="Увеличить (зум +)">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Zm-40-60v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Zoom out -->
+                    <button id="zoom-out" title="Уменьшить (зум -)">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400ZM280-540v-80h200v80H280Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая часть: Список желаний + Футер -->
+        <div class="right-panel">
+            <section class="promo-banner">
+                <h2 class="promo-title">Ёлка желаний 2025</h2>
+               <!-- <p class="promo-text">Вставьте сюда Вашу информацию</p> -->
+            </section>
+            <div class="wishes-list" id="wishes-list">
+                <!-- Сюда JS добавит карточки -->
+            </div>
+            
+            <footer class="footer">
+                <div>Создано в сотрудничестве дивизиона «Сбыт и Трейдинг» ГК Росатом и Университетской Гимназии МГУ</div>
+                <div style="font-size: 12px; margin-top: 5px;">
+                    3D модель елки от <a href="https://sketchfab.com/lowlypoly" target="_blank">lowlypoly</a> (Sketchfab)
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Модальное окно -->
+    <div class="modal" id="reservation-modal">
+        <div class="modal-content">
+            <h2>Стать Дедом Морозом</h2>
+            <!-- Текст теперь генерируется в JS с нужными шрифтами -->
+            <p id="modal-text"></p>
+            
+            <div class="form-group">
+                <label for="reserver-firstname">Ваше имя:</label>
+                <input type="text" id="reserver-firstname" placeholder="Введите ваше имя">
+            </div>
+            
+            <div class="form-group">
+                <label for="reserver-lastname">Ваша фамилия:</label>
+                <input type="text" id="reserver-lastname" placeholder="Введите вашу фамилию">
+            </div>
+            
+            <div class="form-group">
+                <label for="reserver-phone">Ваш телефон:</label>
+                <input type="tel" id="reserver-phone" placeholder="Введите ваш телефон">
+            </div>
+            
+            <div class="form-group">
+                <label for="reserver-email">Ваш email:</label>
+                <input type="email" id="reserver-email" placeholder="Введите ваш email">
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="confirm-reservation">Стать Дедом Морозом</button>
+                <button id="cancel-reservation">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // --- ЛОГИКА ТАЙМЕРА ---
+        function updateCountdown() {
+            const timerElement = document.getElementById('countdown');
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            // Месяцы в JS начинаются с 0, поэтому 11 = Декабрь
+            const targetDate = new Date(currentYear, 11, 16, 0, 0, 0); 
+            
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                timerElement.textContent = "Сбор завершен";
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+            const d = days.toString().padStart(2, '0');
+            const h = hours.toString().padStart(2, '0');
+            const m = minutes.toString().padStart(2, '0');
+
+            timerElement.textContent = `${d}д ${h}ч ${m}м`;
+        }
+        
+        // Запуск таймера
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+        
+        
+        let wishesData = [];
+
+        async function loadWishesData() {
+            try {
+                // const response = await fetch('/api/children'); //
+                const response = await fetch('children.json');
+                if (!response.ok) throw new Error('Ошибка загрузки данных с сервера');
+                wishesData = await response.json();
+                updateWishesList();
+                if (scene) createOrnaments();
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        const colorOptions = [
+            { name: "Красный", value: 0xe74c3c },
+            { name: "Синий", value: 0x3498db },
+            { name: "Желтый", value: 0xf1c40f },
+            { name: "Зеленый", value: 0x2ecc71 },
+            { name: "Фиолетовый", value: 0x9b59b6 },
+            { name: "Оранжевый", value: 0xe67e22 },
+            { name: "Бирюзовый", value: 0x1abc9c },
+            { name: "Розовый", value: 0xe84393 }
+        ];
+
+        function getRandomOriginalColor() {
+            return colorOptions[Math.floor(Math.random() * colorOptions.length)].value;
+        }
+
+        const treeContainer = document.getElementById('tree-container');
+        const wishesList = document.getElementById('wishes-list');
+        const rotateBtn = document.getElementById('rotate-btn');
+        const modal = document.getElementById('reservation-modal');
+        const modalText = document.getElementById('modal-text'); // Получаем ссылку на параграф
+        const confirmBtn = document.getElementById('confirm-reservation');
+        const cancelBtn = document.getElementById('cancel-reservation');
+        const reserverFirstNameInput = document.getElementById('reserver-firstname');
+        const reserverLastNameInput = document.getElementById('reserver-lastname');
+        const reserverPhoneInput = document.getElementById('reserver-phone');
+        const reserverEmailInput = document.getElementById('reserver-email');
+        const tooltip = document.getElementById('tooltip');
+
+        let currentWishId = null;
+        let isRotating = false; 
+        
+        let scene, camera, renderer, tree, ornaments = [], ornamentLights = [], ornamentDecorations = [];
+        let raycaster, mouse, controls;
+        
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            scene.background = null; 
+
+            const width = treeContainer.clientWidth;
+            const height = treeContainer.clientHeight;
+
+            camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+            camera.position.set(0, 2, 14);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.shadowMap.enabled = true;
+            treeContainer.appendChild(renderer.domElement);
+            
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.rotateSpeed = 0.5;
+            controls.enableZoom = true;
+            controls.enablePan = false;
+            controls.minDistance = 7;
+            controls.maxDistance = 20; 
+            
+            // Ограничение угла, чтобы нельзя было смотреть под ёлку
+            // Math.PI / 2 = 90 градусов (уровень горизонта). Отнимаем немного для запаса.
+            controls.maxPolarAngle = Math.PI / 1.8 - 0.05;
+
+            const ambientLight = new THREE.AmbientLight(0xffbf00, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffbf00, 0.8);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            createSnowParticles();
+            createTree();
+            createOrnaments();
+            
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+            
+            // renderer.domElement.addEventListener('click', onClick, false);
+           // renderer.domElement.addEventListener('mousemove', onMouseMove, false);
+           // renderer.domElement.addEventListener('mouseleave', onMouseLeave, false);
+
+            const canvas = renderer.domElement;
+
+// Мышиные события (десктоп)
+canvas.addEventListener('click', onClick, false);
+canvas.addEventListener('mousemove', onMouseMove, false);
+canvas.addEventListener('mouseleave', onMouseLeave, false);
+
+// Сенсорные события (мобильные)
+canvas.addEventListener('touchstart', onTouchStart, false);
+canvas.addEventListener('touchmove', onTouchMove, false);
+canvas.addEventListener('touchend', onTouchEnd, false);
+            function onTouchStart(event) {
+    event.preventDefault();
+    // Эмулируем click при первом касании
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(ornaments, true);
+    if (intersects.length > 0) {
+        let ornament = intersects[0].object;
+        while (ornament && !ornament.userData.id) ornament = ornament.parent;
+        if (ornament && ornament.userData.id && !ornament.userData.reserved) {
+            openReservationModal(ornament.userData.id);
+        }
+    }
+}
+
+function onTouchMove(event) {
+    event.preventDefault();
+    const touch = event.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(ornaments, true);
+    if (intersects.length > 0) {
+        let ornament = intersects[0].object;
+        while (ornament && !ornament.userData.id) ornament = ornament.parent;
+        if (ornament && ornament.userData.id) {
+            const userData = ornament.userData;
+            tooltip.style.opacity = '1';
+            tooltip.style.left = `${touch.clientX + 15}px`;
+            tooltip.style.top = `${touch.clientY + 15}px`;
+            if (userData.reserved) {
+                tooltip.innerHTML = `<strong>${userData.child}</strong> (${userData.age} лет)<br>${userData.gift}<br><span style="color: #15256D">Подарок забронирован</span>`;
+            } else {
+                tooltip.innerHTML = `<strong>${userData.child}</strong> (${userData.age} лет)<br>${userData.gift}<br><span style="color: #df5b6c;">Нажмите, чтобы забронировать!</span>`;
+            }
+        } else {
+            tooltip.style.opacity = '0';
+        }
+    } else {
+        tooltip.style.opacity = '0';
+    }
+}
+
+function onTouchEnd(event) {
+    event.preventDefault();
+    tooltip.style.opacity = '0';
+}
+ window.addEventListener('resize', onWindowResize, false);
+            
+            animate();
+        }
+        
+        function createTree() {
+            const loader = new THREE.GLTFLoader();
+            loader.load('3d/XMas-tree.glb', 
+                function(gltf) {
+                    const object = gltf.scene;
+                    object.scale.set(0.02, 0.02, 0.02);
+                    object.position.set(0, -3, 0);
+                    object.traverse(function(child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (child.material) child.material.side = THREE.DoubleSide;
+                        }
+                    });
+                    tree = object;
+                    scene.add(object);
+                }, undefined, function(error) { console.error('Ошибка GLB:', error); }
+            );
+            
+            loader.load('3d/XMas-star.glb', function(gltf) {
+                const object = gltf.scene;
+                object.scale.set(0.02, 0.02, 0.02);
+                object.position.set(0, -3, 0);
+                object.traverse(function(child) {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        if (child.material) {
+                            child.material.emissive = new THREE.Color(0xffb656);
+                            child.material.emissiveIntensity = 0.0;
+                            child.material.color = new THREE.Color(0xffb656);
+                        }
+                    }
+                });
+                scene.add(object);
+            });
+
+            loader.load('3d/XMas-lights.glb', function(gltf) {
+                const object = gltf.scene;
+                object.scale.set(0.02, 0.02, 0.02);
+                object.position.set(0, -3, 0);
+                object.traverse(function(child) {
+                    if (child.isMesh) {
+                        if (child.material) {
+                            child.material.emissive = new THREE.Color(0xEF3E36);
+                            child.material.emissiveIntensity = 0.75;
+                            child.material.color = new THREE.Color(0xEF3E36);
+                        }
+                    }
+                });
+                scene.add(object);
+            });
+        }
+        
+        let snowParticles;
+        function createSnowParticles() {
+            const particleCount = 1000;
+            const particles = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const textureLoader = new THREE.TextureLoader();
+            const snowflakeTexture = textureLoader.load('image/snowflake.png');
+            
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 50;
+                positions[i * 3 + 1] = Math.random() * 20 - 3;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
+            }
+            
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.3,
+                map: snowflakeTexture,
+                transparent: true,
+                opacity: 0.8,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+            
+            snowParticles = new THREE.Points(particles, particleMaterial);
+            scene.add(snowParticles);
+        }
+        
+        function animateSnow() {
+            if (!snowParticles) return;
+            const positions = snowParticles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i + 1] -= 0.02;
+                if (positions[i + 1] < -3) positions[i + 1] = 17;
+            }
+            snowParticles.geometry.attributes.position.needsUpdate = true;
+        }
+        
+        function createOrnaments() {
+            ornaments.forEach(ornament => scene.remove(ornament));
+            ornamentLights.forEach(light => scene.remove(light));
+            ornamentDecorations.forEach(decor => scene.remove(decor));
+            ornaments = [];
+            ornamentLights = [];
+            ornamentDecorations = [];
+            
+            if (!wishesData || wishesData.length === 0) return;
+
+            const treeHeight = 4.8;
+            const treeBaseY = -1.5;
+            const treeTopY = treeBaseY + treeHeight;
+            const baseRadius = 2.35;
+            const topRadius = 0.45;
+            const minDistance = 0.4;
+            const placedPositions = [];
+            
+            const loader = new THREE.GLTFLoader();
+            
+            function getTreeRadiusAtHeight(y) {
+                const normalizedHeight = (y - treeBaseY) / treeHeight;
+                return baseRadius - (baseRadius - topRadius) * normalizedHeight;
+            }
+            
+            function isPositionValid(x, y, z) {
+                for (let pos of placedPositions) {
+                    const dx = x - pos.x;
+                    const dy = y - pos.y;
+                    const dz = z - pos.z;
+                    if (Math.sqrt(dx * dx + dy * dy + dz * dz) < minDistance) return false;
+                }
+                return true;
+            }
+            
+            for (let wishIndex = 0; wishIndex < wishesData.length; wishIndex++) {
+                const wish = wishesData[wishIndex];
+                const isReserved = !!wish.reserved; 
+                const ballColor = wish.color || getRandomOriginalColor();
+                wish.color = ballColor;
+                let x, y, z;
+                let attempts = 0;
+                const maxAttempts = 50;
+                
+                do {
+                    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+                    const t = wishIndex / wishesData.length;
+                    y = treeBaseY + treeHeight * t + (Math.random() - 0.5) * 0.3;
+                    y = Math.max(treeBaseY + 0.1, Math.min(y, treeTopY - 0.2));
+                    const treeRadius = getTreeRadiusAtHeight(y);
+                    const radius = treeRadius * (0.7 + Math.random() * 0.25);
+                    const angle = wishIndex * goldenAngle + (Math.random() - 0.5) * 0.3;
+                    x = Math.cos(angle) * radius;
+                    z = Math.sin(angle) * radius;
+                    attempts++;
+                } while (!isPositionValid(x, y, z) && attempts < maxAttempts);
+                
+                if (attempts < maxAttempts) {
+                    placedPositions.push({ x, y, z });
+                }
+                
+                loader.load('3d/Xmas-bulb.glb',
+                    function(gltf) {
+                        const ornament = gltf.scene.clone();
+                        const scaleVariation = 0.01 + Math.random() * 0.004;
+                        ornament.scale.set(scaleVariation, scaleVariation, scaleVariation);
+                        ornament.position.set(x, y, z);
+                        ornament.rotation.set(Math.random()*6.28, Math.random()*6.28, Math.random()*6.28);
+                        
+                        ornament.traverse(function(child) {
+                            if (child.isMesh && child.material) {
+                                child.material = child.material.clone();
+                                if (isReserved) {
+                                    child.material.color.set(ballColor);
+                                    child.material.emissive = new THREE.Color(ballColor);
+                                    child.material.emissiveIntensity = 1.0;
+                                } else {
+                                    child.material.color.set(0x333333);
+                                    child.material.emissive = new THREE.Color(0x333333);
+                                    child.material.emissiveIntensity = 0.5;
+                                }
+                                child.material.metalness = 0.6;
+                                child.material.roughness = 0.3;
+                            }
+                        });
+                        
+                        ornament.userData = { id: wish.id, child: wish.child, age: wish.age, gift: wish.gift, reserved: isReserved };
+                        scene.add(ornament);
+                        ornaments.push(ornament);
+                        
+                        if (isReserved) {
+                            const ornamentLight = new THREE.PointLight(ballColor, 7, 2);
+                            ornamentLight.position.set(x, y, z);
+                            scene.add(ornamentLight);
+                            ornamentLights.push(ornamentLight);
+
+                            const glowSprite = createWhiteGlowSprite();
+                            const scale = 0.28;
+                            glowSprite.scale.set(scale, scale, scale);
+                            glowSprite.position.set(x, y, z);
+                            scene.add(glowSprite);
+                            ornamentDecorations.push(glowSprite);
+                        } else {
+                            createCircleAroundOrnament(x, y, z, ballColor);
+                        }
+                    }
+                );
+            }
+        }
+        
+        function createWhiteGlowSprite() {
+            const size = 256;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(size / 2, size / 2, size * 0.1, size / 2, size / 2, size / 2);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+            gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.55)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, size, size);
+
+            const texture = new THREE.Texture(canvas);
+            texture.needsUpdate = true;
+
+            const material = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthWrite: false,
+                depthTest: false,
+                blending: THREE.AdditiveBlending
+            });
+
+            return new THREE.Sprite(material);
+        }
+
+        function createCircleAroundOrnament(x, y, z, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const context = canvas.getContext('2d');
+            context.beginPath();
+            context.arc(64, 64, 60, 0, 2 * Math.PI);
+            const hexColor = `#${new THREE.Color(color).getHexString()}`;
+            context.strokeStyle = hexColor; context.lineWidth = 6; context.stroke();
+            // context.shadowBlur = 15; context.shadowColor = hexColor; context.stroke();
+            const texture = new THREE.Texture(canvas); texture.needsUpdate = true;
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.8, depthWrite: false });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(x, y, z);
+            scene.add(sprite);
+        }
+        
+        function onWindowResize() {
+            const width = treeContainer.clientWidth;
+            const height = treeContainer.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+        
+        function onClick(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(ornaments, true);
+            if (intersects.length > 0) {
+                let ornament = intersects[0].object;
+                while (ornament && !ornament.userData.id) ornament = ornament.parent;
+                if (ornament && ornament.userData.id && !ornament.userData.reserved) openReservationModal(ornament.userData.id);
+            }
+        }
+        
+        function onMouseMove(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(ornaments, true);
+            if (intersects.length > 0) {
+                let ornament = intersects[0].object;
+                while (ornament && !ornament.userData.id) ornament = ornament.parent;
+                if (ornament && ornament.userData.id) {
+                    const userData = ornament.userData;
+                    tooltip.style.opacity = '1';
+                    tooltip.style.left = `${event.clientX + 15}px`;
+                    tooltip.style.top = `${event.clientY + 15}px`;
+                    if (userData.reserved) {
+                        tooltip.innerHTML = `<strong>${userData.child}</strong> (${userData.age} лет)<br>${userData.gift}<br><span style="color: #15256D">Подарок забронирован</span>`;
+                    } else {
+                        tooltip.innerHTML = `<strong>${userData.child}</strong> (${userData.age} лет)<br>${userData.gift}<br><span style="color: #df5b6c;">Нажмите, чтобы забронировать!</span>`;
+                    }
+                } else tooltip.style.opacity = '0';
+            } else tooltip.style.opacity = '0';
+        }
+        
+        function onMouseLeave() { tooltip.style.opacity = '0'; }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isRotating) controls.update();
+            else scene.rotation.y += 0.005;
+            animateSnow();
+            renderer.render(scene, camera);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initThreeJS();
+            loadWishesData();
+            rotateBtn.addEventListener('click', toggleRotation);
+            confirmBtn.addEventListener('click', confirmReservation);
+            cancelBtn.addEventListener('click', closeModal);
+        });
+
+        function updateWishesList() {
+            wishesList.innerHTML = '';
+            if (!wishesData) return;
+            wishesData.forEach(wish => { createWishItem(wish, !!wish.reserved); });
+        }
+
+        function createWishItem(wish, isReserved) {
+            const wishItem = document.createElement('div');
+            wishItem.className = 'wish-item';
+            wishItem.dataset.id = wish.id;
+            
+            const wishInfo = document.createElement('div');
+            wishInfo.className = 'wish-info';
+            
+            const childName = document.createElement('h3');
+            childName.textContent = `${wish.child} (${wish.age} лет)`;
+            childName.classList.add('pacifico-regular'); 
+            
+            const giftName = document.createElement('p');
+            giftName.textContent = wish.gift;
+            giftName.classList.add('caveat-regular'); 
+            
+            wishInfo.appendChild(childName);
+            wishInfo.appendChild(giftName);
+            wishItem.appendChild(wishInfo);
+
+            if (isReserved) {
+                const reservedText = document.createElement('span');
+                reservedText.className = 'reserved-text';
+                reservedText.textContent = 'Занято';
+                wishItem.appendChild(reservedText);
+            } else {
+                const reserveBtn = document.createElement('button');
+                reserveBtn.className = 'reserve-btn';
+                reserveBtn.textContent = 'Подарить';
+                reserveBtn.addEventListener('click', function() { openReservationModal(wish.id); });
+                wishItem.appendChild(reserveBtn);
+            }
+            wishesList.appendChild(wishItem);
+        }
+
+        function openReservationModal(wishId) {
+            const wish = wishesData.find(w => w.id === wishId);
+            if (!wish) return;
+            currentWishId = wishId;
+
+            // Формируем текст с нужными шрифтами
+            // Вы становитесь Дедом Морозом для [Name] (возраст: [Age])
+            // [Name] мечтает получить [Gift]
+            modalText.innerHTML = `
+                Вы становитесь Дедом Морозом для <br><span class="modal-data-text">${wish.child}</span>  (возраст: <span class="modal-data-text">${wish.age}</span>)<br>
+                <span class="modal-data-text">${wish.child}</span>  мечтает получить сертификат <span class="modal-data-text">${wish.gift}</span><br><br>
+                <div class="qr-wrapper" style="display:flex;flex-direction:column;align-items:center;">
+                    <div id="qr-container" style="width:80px;height:80px;"></div>
+                    <div class="qr-fallback" style="margin-top:8px; font-size:12px; word-break:break-all;">
+                        <a href="${wish.link}" target="_blank" rel="noopener noreferrer">${wish.link}</a>
+                    </div>
+                </div>
+            `;
+            document.body.style.overflow = 'hidden';
+            modal.style.display = 'flex';
+
+            createQRCode(wish.link, 'qr-container');
+
+        }
+
+        function closeModal() { modal.style.display = 'none'; currentWishId = null; 
+                              // 🔹 Восстанавливаем скролл
+    document.body.style.overflow = '';}
+
+        function createQRCode(url, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            // очистим контейнер
+            container.innerHTML = '';
+                try {
+                // QRCode from qrcodejs создаёт DOM-элемент внутри container
+                new QRCode(container, {
+                    text: url,
+                    width: 80,
+                    height: 80,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (e) {
+                console.error('QR generation error', e);
+                // fallback: показать ссылку в виде текста
+                const pre = document.createElement('div');
+                pre.style.fontSize = '12px';
+                pre.style.wordBreak = 'break-all';
+                pre.textContent = url;
+                container.appendChild(pre);
+            }
+        }
+
+        async function confirmReservation() {
+            const firstName = reserverFirstNameInput.value.trim();
+            const lastName = reserverLastNameInput.value.trim();
+            const phone = reserverPhoneInput.value.trim();
+            const email = reserverEmailInput.value.trim();
+            if (!firstName || !lastName || !phone || !email) { alert('Пожалуйста, заполните все поля'); return; }
+            const reservationData = { childId: currentWishId, reserver: { name: `${firstName} ${lastName}`, phone: phone, email: email } };
+            confirmBtn.disabled = true; confirmBtn.textContent = 'Обработка...';
+            try {
+                const response = await fetch('/api/reserve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reservationData) });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Спасибо! Вы успешно стали Дедом Морозом.');
+                    closeModal();
+                    window.location.reload();
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+                }
+            } catch (error) { console.error('Ошибка сети:', error); alert('Произошла ошибка при отправке данных.'); } finally { confirmBtn.disabled = false; confirmBtn.textContent = 'Стать Дедом Морозом'; }
+        }
+
+        function toggleRotation() {
+            isRotating = !isRotating;
+            controls.enabled = !isRotating;
+            rotateBtn.style.backgroundColor = isRotating ? '#E20072' : '#FD6925';
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

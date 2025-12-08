@@ -1,0 +1,794 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- ШРИФТЫ --- */
+.rubik-wet-paint-regular {
+  font-family: "Rubik Wet Paint", system-ui;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.lobster-regular {
+  font-family: "Lobster", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+
+body {
+    background-color: #256d15; 
+    color: #FFFFFF;
+    overflow: hidden; 
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    background-color: #15256D;
+    border: 1;
+    padding: 0 30px;
+    width: 100%;
+    z-index: 20;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.navbar-logo {
+    height: 50px;
+    width: auto;
+}
+
+.navbar-title {
+    margin: 0;
+    font-family: "Rubik Wet Paint";
+    font-size: 2rem; 
+    color: #FFFFFF;
+    text-align: right;
+    letter-spacing: 1px;
+}
+
+/* --- MAIN LAYOUT --- */
+.main-wrapper {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 80px);
+    position: relative;
+}
+
+/* Левая часть: 3D сцена */
+.left-panel {
+    flex: 1; 
+    background-color: #d4dbf7;
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+
+#tree-container {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    outline: none;
+}
+
+#tree-container:active {
+    cursor: grabbing;
+}
+
+/* --- ТАЙМЕР ОБРАТНОГО ОТСЧЕТА --- */
+.countdown-timer {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 20;
+    
+    /* Стилизация под кнопку "Бронь" */
+    background: #d4dbf7; 
+    color: #df5b6c;
+    border: 3px solid #df5b6c;
+    padding: 15px 15px;
+    border-radius: 0;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    font-size: 18px;
+    min-width: 160px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.countdown-label {
+    font-size: 12px;
+    color: #15256D;
+    letter-spacing: 1px;
+}
+
+/* Элементы управления 3D */
+.overlay-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 30px;
+    z-index: 15;
+}
+
+.tree-info {
+    color: #15256D;
+    /* Убрал italic */
+    font-style: normal; 
+    opacity: 0.8;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    max-width: 60%;
+}
+
+.controls button {
+    pointer-events: auto;
+    margin-top: 10px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background-color 0.2s;
+    border: none;
+}
+
+#rotate-btn {
+    background-color: #FD6925;
+}
+
+#zoom-in, #zoom-out {
+    background-color: #15256D;
+}
+
+.controls button:hover {
+    transform: scale(1.1);
+}
+
+.controls button svg {
+    width: 30px;
+    height: 30px;
+    fill: white;
+}
+
+/* Правая часть: Список желаний (SCROLL CONTAINER) */
+.right-panel {
+    width: 50%;
+    max-width: 600px;
+    background-color: #d4dbf7;
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid #b8c2f1;
+    position: relative;
+    z-index: 5;
+    
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    
+    perspective: 1000px; 
+    perspective-origin: 50% 50%;
+}
+
+.promo-banner {
+    padding: 30px 50px 20px 50px;
+    border-bottom: 2px solid #b8c2f1;
+    color: #15256D;
+}
+
+.promo-title {
+    font-family: "Rubik Wet Paint";
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.promo-text {
+    font-family: "Arial", sans-serif;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #1b3a82;
+}
+
+.wishes-list {
+    padding: 30px;
+    padding-left: 50px; 
+    
+    /* ИЗМЕНЕНИЕ ЗДЕСЬ: */
+    /* Добавляем большой отступ сверху, чтобы первый элемент */
+    /* начинался ближе к центру экрана (на уровне глаз) */
+    padding-top: 30vh; 
+    
+    padding-bottom: 0; /* Отступ снизу не обязателен, там футер */
+    transform-style: preserve-3d;
+}
+
+/* --- КАРТОЧКА С 3D СЛОЯМИ --- */
+.wish-item {
+    min-width: 450px;
+    background-color: #d4dbf7;
+    padding: 15px;
+    margin-bottom: 80px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row-reverse;
+    border: 2px dotted #b8c2f1;
+    
+    transform-style: preserve-3d;
+    transform: translateZ(0);
+    transition: background-color 0.3s;
+}
+
+.wish-item:hover {
+    background-color: #c6cef4;
+}
+.wish-info {
+    text-align: left;
+    flex: 1;
+    /* Убираем background-color отсюда */
+    /* Убираем padding, так как он будет у текста */
+    padding-left: 0px; 
+    transform: translate3d(0px, -0px, 30px);
+    
+    /* Важно: выстраиваем элементы в колонку и прижимаем влево */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+}
+
+.wish-info h3 {
+    color: #15256d;
+    /* color: #FD6925; */
+    font-family: "Arial";
+    font-size: 2rem;
+    line-height: 1.4;
+}
+
+.wish-info p {
+    margin: 0;
+    color: #256d15;
+    font-family: 'Lobster';
+    font-weight: bold;
+    font-size: 1.5rem;
+    line-height: 1.3;
+}
+
+/* Кнопка "Стать Дедом Морозом" */
+.reserve-btn {
+    background: #d4dbf7; 
+    color: #df5b6c;
+    border: 3px solid #df5b6c;
+    padding: 15px 10px;
+    border-radius: 0;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    font-size: 18px;
+    width: 120px;
+    text-align: center;
+    transition: background 0.3s, color 0.3s, border-color 0.3s;
+    transform: translate3d(-10%, 0, 150px);
+}
+
+.reserve-btn:hover {
+    background-color: #df5b6c;
+    color: #b8c2f1;
+    box-shadow: 0px 0px 10px #df5b6c;
+}
+
+.reserved-text {
+    color: #15256d;
+    font-style: italic;
+    font-size: 0.9rem;
+    border: 2px solid #15256d;
+    padding: 10px;
+    border-radius: 0;
+    transform: translate3d(-5%, 0, 40px);
+}
+
+/* --- FOOTER --- */
+.footer {
+    min-height: 80px; /* Чтобы вместить две строки */
+    background-color: #15256D;
+    color: #fff;
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение */
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-family: 'Arial';
+    text-align: center;
+    width: 100%;
+    padding: 20px;
+    border-top: 1px solid #787586;
+    flex-shrink: 0;
+    transform: translateZ(0); 
+    position: relative;
+    z-index: 10;
+    gap: 10px; /* Отступ между строками */
+}
+
+.footer a {
+    color: #FD6925;
+    text-decoration: none;
+    border-bottom: 1px dotted #FD6925;
+    transition: color 0.2s;
+}
+
+.footer a:hover {
+    color: #FFFFFF;
+    border-bottom: 1px solid #FFFFFF;
+}
+
+/* --- MODAL --- */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #d4dbf7;
+    padding: 40px;
+    border-radius: 0;
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+    border: 4px solid #FD6925;
+    color: #15256D;
+}
+
+.modal h2 {
+    margin-bottom: 20px;
+    color: #15256D;
+    /* Шрифт заголовка как в навбаре */
+    font-family: "Rubik Wet Paint"; 
+    font-weight: 400;
+    font-size: 2rem;
+}
+
+.modal p {
+    margin-bottom: 20px;
+    font-family: 'Arial';
+    line-height: 1.5;
+    font-size: 1.1rem;
+}
+
+.modal a {
+    font-size: 1.1rem;
+    color: #15256D;
+}
+
+/* Специальные стили для динамических данных в модале */
+.modal-data-text {
+    font-family: "Arial";
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #FD6925;
+    line-height: 1;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #15256D;
+    font-family: 'Arial', sans-serif;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 0;
+    border: 2px solid #b8c2f1;
+    background: #c6cef4;
+    color: #15256D;
+    font-size: 1rem;
+}
+
+input placeholder {
+    color: white;
+}
+
+input:focus {
+    outline: none;
+    border-color: #FD6925;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.modal-buttons button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    transition: transform 0.2s;
+}
+
+#confirm-reservation {
+    background-color: #df5b6c;
+}
+
+#cancel-reservation {
+    background-color: #FD6925;
+}
+
+#confirm-reservation:hover, #cancel-reservation:hover {
+    filter: brightness(1.1);
+}
+
+.tooltip {
+    position: absolute;
+    background: #c6cef4;
+    color: #15256D;
+    padding: 10px;
+    border-radius: 0;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border: 2px solid #b8c2f1;
+    font-family: 'Arial', sans-serif;
+}
+
+/* ============= АДАПТИВНОСТЬ ============= */
+
+/* Планшеты и мобильные (до 1024px) */
+@media (max-width: 1024px) {
+    .main-wrapper {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 80px);
+    }
+
+    .left-panel {
+        height: 50vh;
+        min-height: 350px;
+    }
+
+    .right-panel {
+        width: 100%;
+        max-width: none;
+        border-left: none;
+        border-top: 2px solid #b8c2f1;
+    }
+
+    .wishes-list {
+        padding: 20px;
+        padding-top: 20px; /* убираем 30vh — на мобилках не нужно */
+    }
+
+    .wish-item {
+        min-width: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        margin-bottom: 40px;
+    }
+
+    .wish-info {
+        transform: translate3d(0, 0, 0) !important;
+        padding: 0;
+        margin-bottom: 15px;
+    }
+
+    .reserve-btn,
+    .reserved-text {
+        transform: translate3d(0, 0, 0) !important;
+        width: auto;
+        align-self: flex-start;
+    }
+
+    .reserve-btn {
+        width: 100%;
+        max-width: 250px;
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .footer {
+        padding: 15px;
+        font-size: 11px;
+    }
+}
+
+/* Мобильные устройства (до 768px) */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 15px;
+        height: auto;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 10px;
+    }
+
+    .navbar-logo {
+        height: 36px;
+    }
+
+    .navbar-title {
+        font-size: 1.6rem;
+        text-align: center;
+    }
+
+    .promo-banner {
+        padding: 20px 20px 15px;
+    }
+
+    .promo-title {
+        font-size: 1.8rem;
+    }
+
+    .wish-info h3 {
+        font-size: 1.6rem;
+    }
+
+    .wish-info p {
+        font-size: 1.3rem;
+    }
+
+    .countdown-timer {
+        position: static;
+        margin: 15px auto;
+        width: fit-content;
+        font-size: 16px;
+        padding: 12px 15px;
+    }
+
+    .countdown-label {
+        font-size: 11px;
+    }
+
+    .overlay-controls {
+        position: static;
+        height: auto;
+        padding: 15px;
+        justify-content: center;
+    }
+
+    .tree-info {
+        max-width: 100%;
+        font-size: 12px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .modal-content {
+        padding: 25px 20px;
+        max-width: 95%;
+    }
+
+    .modal h2 {
+        font-size: 1.6rem;
+    }
+
+    .modal p,
+    .modal .modal-data-text {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+
+    .qr-wrapper {
+        width: 100% !important;
+    }
+
+    #qr-container {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    .form-group input {
+        padding: 10px;
+        font-size: 0.95rem;
+    }
+
+    .modal-buttons button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .tooltip {
+        font-size: 14px;
+        padding: 8px;
+        max-width: 85vw;
+        word-wrap: break-word;
+        left: 10px !important;
+        top: 10px !important;
+    }
+}
+
+/* Очень маленькие экраны (до 480px) */
+@media (max-width: 480px) {
+    .wish-info h3 {
+        font-size: 1.4rem;
+    }
+
+    .wish-info p {
+        font-size: 1.2rem;
+    }
+
+    .reserve-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .countdown-timer {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    .footer {
+        font-size: 10px;
+        padding: 12px 10px;
+        gap: 6px;
+    }
+
+    .footer div:nth-child(1) {
+        white-space: normal;
+    }
+}
+
+/* Адаптация модального окна */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 25px 20px;
+        margin: 10px;
+        max-width: 95vw;
+        width: 95vw;
+    }
+
+    .modal h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .modal p {
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .modal-data-text {
+        font-size: 1.15rem;
+        line-height: 1.3;
+    }
+
+    .qr-wrapper {
+        margin-top: 15px !important;
+    }
+
+    #qr-container {
+        width: 70px !important;
+        height: 70px !important;
+        margin: 0 auto;
+    }
+
+    .qr-fallback {
+        font-size: 11px !important;
+        margin-top: 8px !important;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .form-group label {
+        font-size: 0.95rem;
+    }
+
+    .form-group input {
+        padding: 10px;
+        font-size: 1rem;
+        min-height: 40px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .modal-buttons button {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 20px 15px;
+    }
+
+    .modal h2 {
+        font-size: 1.4rem;
+    }
+
+    .modal p,
+    .modal-data-text {
+        font-size: 1rem;
+    }
+
+    .form-group input {
+        font-size: 0.95rem;
+    }
+
+    .modal-buttons button {
+        padding: 11px;
+    }
+}
+/* Адаптация кнопок в модалке на мобильных */
+@media (max-width: 600px) {
+    .modal-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .modal-buttons button {
+        width: 100%;
+        max-width: 280px;
+        padding: 12px;
+        font-size: 16px;
+    }
+}
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
