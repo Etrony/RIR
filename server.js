@@ -3,8 +3,8 @@ const url = require('url');
 const path = require('path');
 
 // Supabase настройки (замените на ваши!)
-const SUPABASE_URL = 'https://ВАШ_ПРОЕКТ.supabase.co';
-const SUPABASE_KEY = 'ВАШ_ANON_PUBLIC_KEY';
+const SUPABASE_URL = 'https://bqusxxajohmdaiedxqva.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJxdXN4eGFqb2htZGFpZWR4cXZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyMjQ1NzYsImV4cCI6MjA4MDgwMDU3Nn0.NDn6Fjo6mFXKbI0A1VpILNllPxJErA91ahiKALX06p4';
 
 // Используем встроенный fetch (Node.js 18+)
 // Если у вас Node <18 — раскомментируйте:
