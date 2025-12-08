@@ -1,10 +1,16 @@
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 const url = require('url');
+const path = require('path');
 
-const PORT = 3000;
-const CHILDREN_FILE = path.join(__dirname, 'children.json');
+// Supabase настройки (замените на ваши!)
+const SUPABASE_URL = 'https://ВАШ_ПРОЕКТ.supabase.co';
+const SUPABASE_KEY = 'ВАШ_ANON_PUBLIC_KEY';
+
+// Используем встроенный fetch (Node.js 18+)
+// Если у вас Node <18 — раскомментируйте:
+// const fetch = require('node-fetch');
+
+const PORT = process.env.PORT || 3000;
 
 // MIME types
 const mimeTypes = {
@@ -20,26 +26,30 @@ const mimeTypes = {
     '.glb': 'model/gltf-binary'
 };
 
-// Helper function to read children data
-function readChildren() {
-    try {
-        const data = fs.readFileSync(CHILDREN_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        return [];
+// Вспомогательная функция для запросов к Supabase
+async function supabaseFetch(endpoint, options = {}) {
+    const fullUrl = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+    const headers = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...options.headers
+    };
+    const res = await fetch(fullUrl, { ...options, headers });
+    if (!res.ok) {
+        const text = await res.text();
+        console.error('Supabase error:', text);
+        throw new Error(`Supabase ${res.status}: ${text}`);
     }
+    return res.json();
 }
 
-// Helper function to write children data
-function writeChildren(data) {
-    fs.writeFileSync(CHILDREN_FILE, JSON.stringify(data, null, 2));
-}
-
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
 
-    // Enable CORS
+    // CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -50,170 +60,56 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // API Routes
+    // API: получить всех детей
     if (pathname === '/api/children' && req.method === 'GET') {
-        // Get all children
-        const children = readChildren();
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(children));
+        try {
+            const data = await supabaseFetch('children?order=id.asc');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('GET /api/children error:', e);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Failed to fetch children' }));
+        }
         return;
     }
 
-    if (pathname === '/api/children' && req.method === 'POST') {
-        // Add new child
+    // API: зарезервировать подарок
+    if (pathname === '/api/reserve' && req.method === 'POST') {
         let body = '';
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
-        req.on('end', () => {
+        req.on('data', chunk => body += chunk.toString());
+        req.on('end', async () => {
             try {
-                const newChild = JSON.parse(body);
-                const children = readChildren();
-                
-                // Generate new ID
-                const maxId = children.length > 0 ? Math.max(...children.map(c => c.id)) : 0;
-                newChild.id = maxId + 1;
-                newChild.reserved = false;
-                
-                children.push(newChild);
-                writeChildren(children);
-                
-                res.writeHead(201, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(newChild));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    if (pathname.startsWith('/api/children/') && req.method === 'PUT') {
-        // Update child (partial update supported)
-        const id = parseInt(pathname.split('/')[3]);
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', () => {
-            try {
-                const update = JSON.parse(body);
-                const children = readChildren();
-                const child = children.find(c => c.id === id);
-                if (!child) {
-                    res.writeHead(404, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Child not found' }));
+                const { childId, reserver } = JSON.parse(body);
+                if (!childId || !reserver) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Missing childId or reserver' }));
                     return;
                 }
 
-                // Apply only provided fields
-                Object.keys(update).forEach(key => {
-                    child[key] = update[key];
+                const updates = { reserved: true, reserver };
+                const result = await supabaseFetch(`children?id=eq.${childId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(updates)
                 });
 
-                writeChildren(children);
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(child));
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid JSON' }));
-            }
-        });
-        return;
-    }
-
-    if (pathname.startsWith('/api/children/') && req.method === 'DELETE') {
-        // Delete child
-        const id = parseInt(pathname.split('/')[3]);
-        const children = readChildren();
-        const filteredChildren = children.filter(c => c.id !== id);
-        
-        writeChildren(filteredChildren);
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true }));
-        return;
-    }
-
-    if (pathname === '/api/reserve' && req.method === 'POST') {
-
-        // Reserve a child with simple file-based locking to avoid race conditions
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', async () => {
-            const lockPath = CHILDREN_FILE + '.lock';
-
-            // Helper to acquire lock (tries for up to 2s)
-            const acquireLock = () => new Promise((resolve, reject) => {
-                const start = Date.now();
-                const tryCreate = () => {
-                    fs.open(lockPath, 'wx', (err, fd) => {
-                        if (!err) {
-                            // lock file created
-                            fs.close(fd, () => {});
-                            return resolve();
-                        }
-                        if (err.code === 'EEXIST') {
-                            if (Date.now() - start > 10000) return reject(new Error('LockTimeout'));
-                            return setTimeout(tryCreate, 50);
-                        }
-                        return reject(err);
-                    });
-                };
-                tryCreate();
-            });
-
-            try {
-                let reservation;
-                try {
-                    reservation = JSON.parse(body);
-                } catch (e) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Invalid JSON' }));
-                    return;
-                }
-
-                await acquireLock();
-
-                try {
-                    const children = readChildren();
-                    const child = children.find(c => c.id === reservation.childId);
-
-                    if (!child) {
-                        res.writeHead(404, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'Child not found' }));
-                        return;
-                    }
-
-                    if (child.reserved) {
-                        res.writeHead(409, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'Child already reserved' }));
-                        return;
-                    }
-
-                    // mark as reserved
-                    child.reserved = true;
-                    child.reserver = reservation.reserver;
-                    writeChildren(children);
-
+                if (result.length === 0) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Child not found' }));
+                } else {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ success: true }));
-                } finally {
-                    // release lock
-                    fs.unlink(lockPath, () => {});
                 }
-            } catch (err) {
-                if (err && err.message === 'LockTimeout') {
-                    res.writeHead(423, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Resource busy, try again' }));
-                } else {
-                    console.error('Reservation error:', err);
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Server error' }));
-                }
+            } catch (e) {
+                console.error('Reserve error:', e);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Reserve failed' }));
             }
         });
         return;
     }
 
-    // Serve static files
+    // Статические файлы
     let filePath = '.' + pathname;
     if (filePath === './') {
         filePath = './index.html';
@@ -222,6 +118,7 @@ const server = http.createServer((req, res) => {
     const extname = String(path.extname(filePath)).toLowerCase();
     const contentType = mimeTypes[extname] || 'application/octet-stream';
 
+    const fs = require('fs');
     fs.readFile(filePath, (error, content) => {
         if (error) {
             if (error.code === 'ENOENT') {
@@ -229,7 +126,7 @@ const server = http.createServer((req, res) => {
                 res.end('<h1>404 - File Not Found</h1>', 'utf-8');
             } else {
                 res.writeHead(500);
-                res.end('Sorry, check with the site admin for error: ' + error.code + ' ..\n');
+                res.end('Server error: ' + error.code);
             }
         } else {
             res.writeHead(200, { 'Content-Type': contentType });
@@ -239,6 +136,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}/`);
-    console.log('Press Ctrl+C to stop the server');
+    console.log(`Server running on port ${PORT}`);
 });
