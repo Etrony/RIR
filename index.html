@@ -663,37 +663,30 @@ function onTouchEnd(event) {
             wishesList.appendChild(wishItem);
         }
 
-       function openReservationModal(wishId) {
-    const wish = wishesData.find(w => w.id === wishId);
-    if (!wish) return;
-    currentWishId = wishId;
+        function openReservationModal(wishId) {
+            const wish = wishesData.find(w => w.id === wishId);
+            if (!wish) return;
+            currentWishId = wishId;
 
-    modalText.innerHTML = `
-        <div class="modal-brief" style="font-family: Arial, sans-serif; font-size: 1.1rem; color: #15256D;">
-            <div style="text-align: center; margin-bottom: 12px;">
-                <strong>${wish.child}</strong>, ${wish.age} лет
-            </div>
-            <div style="text-align: center; margin-bottom: 16px;">
-                Подарок: ${wish.gift}
-            </div>
-            <div style="display: flex; flex-direction: column; align-items: center; margin-top: 16px;">
-                <div id="qr-container" style="width:70px; height:70px;"></div>
-                <div style="font-size:11px; margin-top:6px; color:#15256D; text-align: center;">
-                    Отсканируйте QR или перейдите по ссылке
+            // Формируем текст с нужными шрифтами
+            // Вы становитесь Дедом Морозом для [Name] (возраст: [Age])
+            // [Name] мечтает получить [Gift]
+            modalText.innerHTML = `
+                Вы становитесь Дедом Морозом для <br><span class="modal-data-text">${wish.child}</span>  (возраст: <span class="modal-data-text">${wish.age}</span>)<br>
+                <span class="modal-data-text">${wish.child}</span>  мечтает получить сертификат <span class="modal-data-text">${wish.gift}</span><br><br>
+                <div class="qr-wrapper" style="display:flex;flex-direction:column;align-items:center;">
+                    <div id="qr-container" style="width:80px;height:80px;"></div>
+                    <div class="qr-fallback" style="margin-top:8px; font-size:12px; word-break:break-all;">
+                        <a href="${wish.link}" target="_blank" rel="noopener noreferrer">${wish.link}</a>
+                    </div>
                 </div>
-                <div style="font-size:11px; margin-top:4px; word-break: break-all; text-align: center;">
-                    <a href="${wish.link}" target="_blank" rel="noopener noreferrer">${wish.link}</a>
-                </div>
-            </div>
-        </div>
-    `;
+            `;
+            document.body.style.overflow = 'hidden';
+            modal.style.display = 'flex';
 
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    
-    // ✅ Генерация QR — внутри функции!
-    createQRCode(wish.link, 'qr-container');
-}
+            createQRCode(wish.link, 'qr-container');
+
+        }
 
         function closeModal() { modal.style.display = 'none'; currentWishId = null; 
                               // 🔹 Восстанавливаем скролл
@@ -754,7 +747,6 @@ function onTouchEnd(event) {
     </script>
 </body>
 </html>
-
 
 
 
